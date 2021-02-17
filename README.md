@@ -3,5 +3,5 @@
 Visit https://rksouthee.github.io/
 
 ```bat
-rksouthee.github.io>jekyll server
+rksouthee.github.io>jekyll serve
 ```
