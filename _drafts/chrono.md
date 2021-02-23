@@ -1,23 +1,21 @@
 ---
 layout: post
-title: "Using `<chrono>`"
+title: "Using the chrono library"
 ---
 
-# TODO
+I first started using the chrono library as a way for timing code. The way I
+used the library was based on examples I found online in various blogs and
+videos. After a while I was curious about the design decisions that led to
+chrono and so I watched some videos by Howard Hinnant. The videos were very
+informative and helped me learn about the design of chrono and how to use it
+properly.
 
-* maybe turn this into a tutorial/guide?
-* lossy conversion
-* verbosity
-* printing (support is being added)
-* efficiency (assembly output)
-* using `std::chrono::steady_clock` rather than `std::chrono::high_resolution_clock`
+Although the chrono library introduced clocks and time points, I think what
+helped me the most understand the library was using the durations. Once I
+understood the durations I had a better understanding of the other components.
 
-I first started using the `<chrono>` library as a way for timing code. The way I used the library was based
-on examples I found online in various blogs and videos. After a while I was curious about the design decisions
-that led to `<chrono>` and so I watched some videos by Howard Hinnant. The videos were very informative and helped
-me learn about the design of `<chrono>` and how to use it properly.
-
-An example based on the "Programming a Wireless Robotic Arm" video by javix9. The goal is to print a period of 20ms.
+In the following example, the goal is to pass a value of 20ms to `period` which
+will then print the result.
 
 ```cpp
 #include <iostream>
@@ -33,7 +31,9 @@ int main()
 }
 ```
 
-to
+We have to keep track of what format the function expects the argument and
+performing the conversion ourselves.  Using the chrono library allows to
+express our intent using the type system and user-defined literals.
 
 ```cpp
 #include <iostream>
@@ -51,3 +51,71 @@ int main()
 	period(20ms);
 }
 ```
+
+In this example we express our content using the type system. We also take
+advantage of user-defined literals to call `period` with 20ms. C++20 will
+define the streaming operator for durations allowing us to write
+
+```cpp
+void period(std::chrono::duration<float> seconds)
+{
+	std::cout << seconds << '\n';
+}
+```
+
+A `duration` is a class template with two parameters. The first is an
+arithmetic type representing the count of ticks. If the type is a floating
+point, the duration can represent fractions of a tick. The second parameter is
+a `std::ratio`, which is a compile-time constant representing the number of
+seconds from one tick to the next. The ratio library provides some convenient
+typedefs for several SI units.
+
+For example, if we wanted to define a duration type for the Windows platform
+that uses the `DWORD` type to represent the number of milliseconds, we can
+define the type `std::chrono::duration<DWORD, std::milli>`.
+
+The chrono library can also catch lossy conversions at compile time, for
+example
+
+```cpp
+#include <iostream>
+#include <chrono>
+
+using namespace std::literals;
+
+void period(std::chrono::duration<unsigned> seconds)
+{
+	std::cout << seconds.count() << "s\n";
+}
+
+int main()
+{
+	period(3600ms);
+}
+```
+
+will result in a compiler error notifying us that it can't convert between the
+durations. This is because we can't represent 3600ms cleanly as integral
+seconds. The chrono library provides the `duration_cast` to explicitly convert
+between durations.
+
+```cpp
+#include <iostream>
+#include <chrono>
+
+using namespace std::literals;
+
+void period(std::chrono::duration<unsigned> seconds)
+{
+	std::cout << seconds.count() << "s\n";
+}
+
+int main()
+{
+	period(std::chrono::duration_cast<std::chrono::duration<unsigned>>(3600ms));
+}
+```
+
+This will print 3s. In C++20 the chrono will also add `floor`, `ceil` and
+`round` conversion functions for more control on the type of conversion
+desired.
