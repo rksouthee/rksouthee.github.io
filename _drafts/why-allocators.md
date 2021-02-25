@@ -3,15 +3,33 @@ layout: post
 title:  "Why Allocators"
 ---
 
-C++ allocators have a bad reputation, and for good reason, they couldn't have state before C++11, and because
-they are used as a template parameter to the standard containers, they infect the type system. In an
-[interview](https://www.informit.com/articles/article.aspx?p=2314360) with John Lakos, Alex Stepanov explains
-that allocators were added to the STL "in order to get Microsoft to agree to consider including STL in the
-language". The idea was to abstract the memory model, what is a pointer/reference, so that the STL would support
-things like [far pointers](https://en.wikipedia.org/wiki/Far_pointer).
+C++ allocators have a bad reputation and for good reason. Before C++11 they
+couldn't have state and because they are used as a template parameter they
+infect the type system. This means if you accept a generic container like
+`std::vector` but you only parameterize on the value type and not the allocator
+type you may run into problems.
 
-At some point, allocators were seen as a way of customizing the memory allocation of the standard containers.
-This has now led to memory resources and `std::polymorphic_allocator`. If I were to design the STL today, I
-wouldn't support the allocator template model, and I would not support the polymorphic allocator model with
-the standard containers. As Alex said in the interview "The whole point generic programming is to make things
-simple, not to build everything-and-the-kitchen-sink policies".
+```cpp
+// This may cause problems
+template <typename T>
+void f(const std::vector<T>&);
+
+// Accept an allocator
+template <typename T, typename A>
+void g(const std::vector<T, A>&);
+```
+
+In an [interview](https://www.informit.com/articles/article.aspx?p=2314360)
+with John Lakos, Alex Stepanov explains that allocators were added to the STL
+"in order to get Microsoft to agree to consider including STL in the language".
+The idea was to abstract a memory model allowing different pointer types, at
+the time there were things like [far
+pointers](https://en.wikipedia.org/wiki/Far_pointer).
+
+Eventually allocators were seen as a way of customising how the memory got
+allocated, which has now led to the inclusion of memory resources and
+polymorphic allocators in C++17.
+
+I like what Alex says later in the interivew, linked earlier, "The whole point
+generic programming is to make things simple, not to build
+everything-and-the-kitchen-sink policies".
