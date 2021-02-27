@@ -3,16 +3,15 @@ layout: post
 title: "Using the chrono library"
 ---
 
-I first started using the chrono library as a way for timing code. The way I
-used the library was based on examples I found online in various blogs and
-videos. After a while I was curious about the design decisions that led to
-chrono and so I watched some videos by Howard Hinnant. The videos were very
-informative and helped me learn about the design of chrono and how to use it
-properly.
+I first started using the chrono library as a way to time code and my usage was
+based on blogs and tutorials.  After a while I was curious about the design of
+the chrono library, which led me to watch some videos by the designer Howard
+Hinnant.  The videos were very informative and helped me learn about the design
+of chrono and how to use it properly.
 
 Although the chrono library introduced clocks and time points, I think what
-helped me the most understand the library was using the durations. Once I
-understood the durations I had a better understanding of the other components.
+helped me most was understanding how to use durations. Once understood I had a
+better understanding of the other components of the library.
 
 In the following example, the goal is to pass a value of 20ms to `period` which
 will then print the result.
@@ -31,7 +30,7 @@ int main()
 }
 ```
 
-We have to keep track of what format the function expects the argument and
+We have to keep track of what units the function expects the argument and
 performing the conversion ourselves.  Using the chrono library allows to
 express our intent using the type system and user-defined literals.
 
